@@ -1,0 +1,15 @@
+# data (fetched via `uv run python -m ehmi.fetch`, ~230MB+ — never commit)
+data/
+
+# python env / caches
+.venv/
+__pycache__/
+*.pyc
+
+# large generated artifacts (regenerable via train/pretrain/report)
+results/*.pt
+results/*.npy
+results/*_log.txt
+
+# archives
+*.zip
