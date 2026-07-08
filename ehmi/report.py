@@ -199,11 +199,48 @@ def build_block():
         L += ["![counterfactual](reports/figures/counterfactual_example.png)"]
         L += _cap("ある1人・1試行の上から見た経路。ピンク実線=実際(eHMI ON)、青破線=反事実(同じ人がeHMI無しなら)。"
                   "青が右に多く彷徨う＝警告が無ければもっと横に避けていた。横軸(lateral)は効果を見せるため引き伸ばし。")
+    an = _load("anomaly.json")
+    if an:
+        L += ["", "## 5. 異常検知 / 危険予測（Flow の surprise）", "",
+              "**surprise = −log p(動き│状況)** ＝「その状況で、その動きがどれだけ意外か」。"
+              "条件付きなので**車が近いこと自体は意外でなく**（条件に入っている）、"
+              "**状況に対して動きが異常なときだけ大きく**なる＝“危険な行動”の指標。",
+              f"（危険ラベルはデータ由来：最接近 < {an['near_miss_m']}m を near-miss={an['n_near_miss']}本／"
+              f"> {an['safe_m']}m を safe={an['n_safe']}本）"]
+        a = an.get("A_novelty"); bc = an.get("BC_danger"); d = an.get("D_personalization")
+        L += ["", "**結果（正直に・混在）**："]
+        if a:
+            verdict = "検知できず（クラスタが弱く≒同質）" if a["auc"] < 0.6 else "検知できる"
+            L += [f"- **A. 群の新規性**（片タイプで学習→他タイプを異常検知）：AUC **{a['auc']:.2f}** → {verdict}。"]
+        if bc:
+            L += [f"- **B. near-miss の予測**：near-miss試行の surprise は**最接近の約 {bc['lead_time_s']}秒前**"
+                  f"（車がまだ遠い時）から高い＝**物理的接近より早い予兆**。試行単位 AUC surprise **{bc['auc_surprise']:.2f}** "
+                  f"> jerk基線 {bc['auc_jerk']:.2f}（ただし near-miss {bc['n_near_miss']}本と少なく弱め）。"]
+        if d and d.get("pop_mean") is not None:
+            L += [f"- **D. 個人化で誤警報減**：safe試行の surprise 平均が population **{d['pop_mean']:.2f}** → "
+                  f"few-shot個人化で **{d['personalized_mean']:.2f}**（低い＝“その人の正常”に合わせ誤検知が減る）。"]
+        if a and a.get("scores"):
+            L += ["", "![novelty](reports/figures/anomaly_novelty.png)"]
+            L += _cap("学習した型の試行(青)と未学習の型の試行(橙)の surprise の分布。"
+                      "重なりが大きい＝群の新規性は surprise で分離しづらい（クラスタが横断速度差程度で弱いため）。")
+        if bc:
+            L += ["![leadtime](reports/figures/anomaly_leadtime.png)"]
+            L += _cap("横=最接近(t=0)からの相対時刻、縦左=surprise、縦右(灰)=車までの距離。"
+                      "橙(near-miss)は t=0 の数秒前・車がまだ遠い時点から surprise が高い＝"
+                      "距離ベースの警報より早く“危険な動き”を捉えられる可能性。青(safe)は低いまま。")
+        if d and d.get("pop"):
+            L += ["![personalization](reports/figures/anomaly_personalization.png)"]
+            L += _cap("安全な試行での平均 surprise。左=集団基準、右=few-shotで本人に個人化。"
+                      "個人化すると下がる＝「その人の癖だが安全」を異常と誤らない＝アラーム疲労の低減。")
+        L += ["", "> **正直な限界**: near-miss が全体の約6%(≈20本)と少なく、群も弱いソフトクラスタのため、"
+              "A は分離せず・B の AUC も弱い。強い主張は避け、"
+              "**(i) surprise が物理接近より早い予兆になりうること、(ii) 個人化が誤警報を下げること**の2点に留める。"
+              "本格化には near-miss を増やすデータ収集が必要。"]
     # replay: embed gifs (play inline) + <video> (local viewers) + mp4 links
     gifs = sorted(glob.glob(str(C.FIG_DIR / "replay_*.gif")))
     mp4s = sorted(glob.glob(str(C.FIG_DIR / "replay_*.mp4")))
     if gifs or mp4s:
-        L += ["", "## 5. replay（実試行＋Flow予測扇）", "",
+        L += ["", "## 6. replay（実試行＋Flow予測扇）", "",
               "> **見方**: 上から見た1試行の時間再生。**ピンク=歩行者の実際の軌跡**、"
               "**青い扇=Flowが予測する次~1.5秒の分布**（広い=不確実）、**四角+矢印=車**（色=eHMI, 遠いので端に表示、range=距離）。"
               "青い扇の中にピンクが入り続けるほど予測が当たっている。", ""]
