@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eHMI — 車の合図 → 歩行者の反応 確率シミュレータ (Normalizing Flow)</title>
+<!-- GitHub-flavored markdown styling (auto light/dark) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css">
+<style>
+  body { margin: 0; background: var(--bgColor-default, #fff); }
+  .markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px;
+  }
+  .markdown-body img { background: transparent; }
+  .markdown-body video { max-width: 100%; border-radius: 6px; }
+  @media (max-width: 767px) { .markdown-body { padding: 15px; } }
+  #loading { max-width: 980px; margin: 45px auto; padding: 0 45px; color: #666; font-family: system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<article id="content" class="markdown-body"></article>
+<div id="loading">Loading README…</div>
+<!-- markdown parser + syntax highlighting -->
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+<script>
+  // Render README.md in place. Same content + GitHub design; images/gifs/videos
+  // use paths relative to the repo root, which is also this page's base on Pages.
+  marked.setOptions({ gfm: true, breaks: false });
+  fetch('README.md', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (md) {
+      // strip the results markers (HTML comments) so they don't show as text
+      md = md.replace(/<!--RESULTS:(START|END)-->/g, '');
+      document.getElementById('content').innerHTML = marked.parse(md);
+      document.getElementById('loading').style.display = 'none';
+      if (window.hljs) document.querySelectorAll('pre code').forEach(function (b) { hljs.highlightElement(b); });
+      document.title = (document.querySelector('h1') || {}).textContent || document.title;
+    })
+    .catch(function (e) {
+      document.getElementById('loading').innerHTML =
+        'README.md を読み込めませんでした (' + e + ').<br>GitHub Pages 上（https）で開いてください。' +
+        '直接は <a href="README.md">README.md</a> を参照。';
+    });
+</script>
+</body>
+</html>
