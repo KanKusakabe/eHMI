@@ -1,0 +1,44 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>eHMI NF lenses</title>
+<style>
+:root{--acc:#c2410c;--acc2:#d97757;--ink:#222;--mut:#666;--bg:#faf8f5}
+*{box-sizing:border-box}
+body{font:16px/1.75 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;color:var(--ink);
+ max-width:960px;margin:0 auto;padding:2rem 1rem}
+a{color:var(--acc)}
+h1{line-height:1.35;margin:.2rem 0}
+.sub{color:var(--mut)}
+.crumb{font-size:.9rem;margin-bottom:1rem}
+.kpis{display:flex;gap:.8rem;flex-wrap:wrap;margin:1.2rem 0}
+.kpi{background:#f5f3f0;border-radius:12px;padding:.7rem 1rem;min-width:120px}
+.kpi b{display:block;font-size:1.5rem;color:var(--acc)}
+.kpi span{font-size:.8rem;color:var(--mut)}
+section{margin:2rem 0}
+h2{border-left:5px solid var(--acc2);padding-left:.6rem;font-size:1.25rem}
+figure{margin:1.4rem 0}
+img{width:100%;border:1px solid #e5e5e5;border-radius:10px;background:#fff}
+figcaption{color:#555;margin-top:.4rem;font-size:.92rem}
+.interp{background:var(--bg);border-left:3px solid var(--acc2);padding:.8rem 1rem;border-radius:0 8px 8px 0}
+code{background:#f0eee9;padding:.1rem .35rem;border-radius:4px}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #e5e5e5;padding:.4rem .6rem;text-align:left;font-size:.94rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1.5rem}
+.card{border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-decoration:none;color:inherit;display:block}
+.card:hover{border-color:var(--acc2)}
+.card h3{margin:.1rem 0 .3rem}
+.badge{display:inline-block;font-size:.72rem;padding:.1rem .5rem;border-radius:999px;background:#eee;color:#555}
+.badge.done{background:#e7f3e7;color:#256b25}
+.badge.hold{background:#fdeecd;color:#8a5a00}
+</style></head><body>
+<h1>eHMI NF lenses</h1>
+<p class="sub">車の合図(eHMI)→歩行者の横断応答（連成シミュレータ・395試行）を条件付き Normalizing Flow で学習し、『横断の迷い（予測エントロピー）』と『本来どう動くべきか（反実生成）』の2レンズで見る。</p>
+<p>条件付き <b>Normalizing Flow</b> で「その人の"いつも"の密度」を学習し、
+<code>SURPRISE = -log p</code> や生成・潜在で使う。各カードが1つのモデル（バリエーション）。
+ページを開くと <b>データ / 学習方法 / 結果 / 図の見方 / 解釈と使い道</b> が分かる。</p>
+<section><h2>元データの中身（何が入っているか）</h2><div class="interp"><b>生データ</b>＝<code>features.parquet</code>（122,162行）。1行＝1ステップで、<b>歩行者の増分 (dfwd, dlat)</b>・<b>車との距離 rng</b>・<b>方位 bearing</b>・<b>衝突までの時間 ttc</b>・<b>eHMI合図 ehmi_idx∈{0,1,2}</b>・セッション(=個人)。<br>この合図は<b>既知の刺激</b>＝介入的。合図に対する『渡る/待つ』応答の分布を学べる。</div></section>
+<h2>モデル一覧（クリックで各ページへ）</h2>
+<div class="cards"><a class="card" href="v1.html"><span class="badge done">完了</span><h3>V1 迷い（横断の意思決定エントロピー）</h3><p class="sub">p(次の移動 | 幾何, ttc, eHMI, 履歴, user) の予測エントロピー。渡る/待つが割れる瞬間ほど高い。</p></a><a class="card" href="v2.html"><span class="badge done">完了</span><h3>V2 反実生成（状況ごとの典型応答）</h3><p class="sub">状況(ttc)・合図ごとに『典型的な歩行者応答』を生成。ただし前進応答への限界効果は小さい＝意思決定の信号はV1のエントロピーにある、という正直な結果。</p></a></div>
+<section><h2>考察：どんなフォーマットのデータがあれば何ができるか</h2><p>こう増やすと広がる：</p><ul><li><b>＋横断成否ラベル</b> → 迷い（エントロピー）が実際の逡巡・急停止と対応するかを直接検証。</li><li><b>＋視線</b> → 頭より速い視線の迷いと横断判断の関係。</li><li><b>＋多様なeHMIデザイン</b> → どの合図が迷いを最も減らすかの設計最適化。</li></ul></section>
+<p class="sub" style="margin-top:2rem">自動生成。NF×生活データ探索シリーズ。</p>
+</body></html>

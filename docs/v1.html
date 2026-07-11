@@ -1,0 +1,46 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V1 迷い（横断の意思決定エントロピー） · eHMI NF lenses</title>
+<style>
+:root{--acc:#c2410c;--acc2:#d97757;--ink:#222;--mut:#666;--bg:#faf8f5}
+*{box-sizing:border-box}
+body{font:16px/1.75 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;color:var(--ink);
+ max-width:960px;margin:0 auto;padding:2rem 1rem}
+a{color:var(--acc)}
+h1{line-height:1.35;margin:.2rem 0}
+.sub{color:var(--mut)}
+.crumb{font-size:.9rem;margin-bottom:1rem}
+.kpis{display:flex;gap:.8rem;flex-wrap:wrap;margin:1.2rem 0}
+.kpi{background:#f5f3f0;border-radius:12px;padding:.7rem 1rem;min-width:120px}
+.kpi b{display:block;font-size:1.5rem;color:var(--acc)}
+.kpi span{font-size:.8rem;color:var(--mut)}
+section{margin:2rem 0}
+h2{border-left:5px solid var(--acc2);padding-left:.6rem;font-size:1.25rem}
+figure{margin:1.4rem 0}
+img{width:100%;border:1px solid #e5e5e5;border-radius:10px;background:#fff}
+figcaption{color:#555;margin-top:.4rem;font-size:.92rem}
+.interp{background:var(--bg);border-left:3px solid var(--acc2);padding:.8rem 1rem;border-radius:0 8px 8px 0}
+code{background:#f0eee9;padding:.1rem .35rem;border-radius:4px}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #e5e5e5;padding:.4rem .6rem;text-align:left;font-size:.94rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1.5rem}
+.card{border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-decoration:none;color:inherit;display:block}
+.card:hover{border-color:var(--acc2)}
+.card h3{margin:.1rem 0 .3rem}
+.badge{display:inline-block;font-size:.72rem;padding:.1rem .5rem;border-radius:999px;background:#eee;color:#555}
+.badge.done{background:#e7f3e7;color:#256b25}
+.badge.hold{background:#fdeecd;color:#8a5a00}
+</style></head><body>
+<div class="crumb"><a href="index.html">&larr; eHMI NF lenses トップ</a></div>
+<h1>V1 迷い（横断の意思決定エントロピー）</h1>
+<p class="sub">p(次の移動 | 幾何, ttc, eHMI, 履歴, user) の予測エントロピー。渡る/待つが割れる瞬間ほど高い。</p>
+<div class="kpis"><div class="kpi"><b>-2.034</b><span>held-out NLL</span></div><div class="kpi"><b>0.5</b><span>最も迷うttc(秒)</span></div><div class="kpi"><b>120187</b><span>ステップ数</span></div></div>
+<section><h2>1. このデータは何か</h2>車の合図→歩行者応答。直近5ステップの増分履歴＋車との幾何(距離/方位)＋ttc＋eHMI合図＋個人。</section>
+<section><h2>2. 何を・どう学習したか</h2>逐次 NSF <code>p(次の歩行者移動 | 幾何, ttc, eHMI, 履歴, user)</code> を学習し、各ステップの<b>予測エントロピー</b>を推定。ttc（衝突までの時間）と合図の種類で層別。</section>
+<section><h2>3. 結果</h2>予測エントロピーは<b>意思決定ゾーン（ttc≈0秒付近）で最大</b>＝渡るか待つかが割れるタイミングで『次の動きが読めない』。合図の種類でも迷いの平均が変わる。
+<figure><img src="figures/v1_decision_entropy.png" alt="左:ttcごとの予測エントロピー（迷いのタイミング）。右:eHMI合図別の平均迷い。"><figcaption>左:ttcごとの予測エントロピー（迷いのタイミング）。右:eHMI合図別の平均迷い。</figcaption></figure></section>
+<section><h2>4. 図の見方</h2><b>左折線</b>：横=衝突までの時間、縦=次の動きの読めなさ。山＝迷いが立つ意思決定ゾーン。<br><b>右棒</b>：合図ごとの平均エントロピー。低い合図＝迷いを減らせている可能性。</section>
+<section><h2>5. 解釈と意味・使い道</h2><div class="interp"><b>示すこと</b>：<b>予測エントロピー</b>で『横断をためらう/決めかねる瞬間』を結果を見る前に捉えられる。<br><b>なぜNFか</b>：多峰な歩行者応答（渡る/待つ）の広がりをサンプル＋厳密尤度で測れる。<br><b>使い道</b>：<b>eHMIデザイン評価</b>（迷いを減らす合図が良い合図）、危険な逡巡の予兆検知。<br><b>正直な限界</b>：横断成否ラベル未使用（迷いは応答分布から推定）。個人差大。</div></section>
+<p class="sub" style="margin-top:2rem">条件付き Normalizing Flow（zuko NSF）で自動生成。
+NF×生活データ探索シリーズの一部。</p>
+</body></html>

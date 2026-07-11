@@ -1,0 +1,46 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V2 反実生成（状況ごとの典型応答） · eHMI NF lenses</title>
+<style>
+:root{--acc:#c2410c;--acc2:#d97757;--ink:#222;--mut:#666;--bg:#faf8f5}
+*{box-sizing:border-box}
+body{font:16px/1.75 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;color:var(--ink);
+ max-width:960px;margin:0 auto;padding:2rem 1rem}
+a{color:var(--acc)}
+h1{line-height:1.35;margin:.2rem 0}
+.sub{color:var(--mut)}
+.crumb{font-size:.9rem;margin-bottom:1rem}
+.kpis{display:flex;gap:.8rem;flex-wrap:wrap;margin:1.2rem 0}
+.kpi{background:#f5f3f0;border-radius:12px;padding:.7rem 1rem;min-width:120px}
+.kpi b{display:block;font-size:1.5rem;color:var(--acc)}
+.kpi span{font-size:.8rem;color:var(--mut)}
+section{margin:2rem 0}
+h2{border-left:5px solid var(--acc2);padding-left:.6rem;font-size:1.25rem}
+figure{margin:1.4rem 0}
+img{width:100%;border:1px solid #e5e5e5;border-radius:10px;background:#fff}
+figcaption{color:#555;margin-top:.4rem;font-size:.92rem}
+.interp{background:var(--bg);border-left:3px solid var(--acc2);padding:.8rem 1rem;border-radius:0 8px 8px 0}
+code{background:#f0eee9;padding:.1rem .35rem;border-radius:4px}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #e5e5e5;padding:.4rem .6rem;text-align:left;font-size:.94rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1.5rem}
+.card{border:1px solid #e5e5e5;border-radius:12px;padding:1rem;text-decoration:none;color:inherit;display:block}
+.card:hover{border-color:var(--acc2)}
+.card h3{margin:.1rem 0 .3rem}
+.badge{display:inline-block;font-size:.72rem;padding:.1rem .5rem;border-radius:999px;background:#eee;color:#555}
+.badge.done{background:#e7f3e7;color:#256b25}
+.badge.hold{background:#fdeecd;color:#8a5a00}
+</style></head><body>
+<div class="crumb"><a href="index.html">&larr; eHMI NF lenses トップ</a></div>
+<h1>V2 反実生成（状況ごとの典型応答）</h1>
+<p class="sub">状況(ttc)・合図ごとに『典型的な歩行者応答』を生成。ただし前進応答への限界効果は小さい＝意思決定の信号はV1のエントロピーにある、という正直な結果。</p>
+<div class="kpis"><div class="kpi"><b>0.0055</b><span>遠い(ttc12)のstd</span></div><div class="kpi"><b>0.0056</b><span>近い(ttc2)のstd</span></div><div class="kpi"><b>0.001</b><span>合図間のばらつき</span></div></div>
+<section><h2>1. このデータは何か</h2>V1と同じモデル。幾何を固定し、衝突までの時間(ttc)や eHMI合図を変えて応答を生成。</section>
+<section><h2>2. 何を・どう学習したか</h2><code>p(歩行者移動 | ttc, eHMI, 幾何, …)</code> から状況別にサンプルし、前進増分dfwdの分布を比較。生成と密度が同一モデルなのはNFの独自点。</section>
+<section><h2>3. 結果</h2>NFは状況を条件に応答を生成できるが、<b>前進増分の分布は ttc でも eHMI合図でも大きくは動かない</b>（std 0.0055/0.0056、合図間差 0.0010）。つまり<b>意思決定の信号は『平均的な前進量』でなく『不確実性』の側にある</b>—それを捉えているのが V1（低ttcで予測エントロピーが立つ）。正直な負の結果として提示する。
+<figure><img src="figures/v2_counterfactual.png" alt="左:車が遠い(緑)vs近い(赤)の生成応答（差は小さい）。右:合図別（ほぼ重なる）。"><figcaption>左:車が遠い(緑)vs近い(赤)の生成応答（差は小さい）。右:合図別（ほぼ重なる）。</figcaption></figure></section>
+<section><h2>4. 図の見方</h2><b>左</b>：横=前進増分（>0で渡る方向）。遠い/近いで分布はあまり変わらない。<br><b>右</b>：合図別もほぼ重なる＝前進応答への限界効果は小さい。</section>
+<section><h2>5. 解釈と意味・使い道</h2><div class="interp"><b>示すこと</b>：NFは状況条件つきで応答を<b>生成</b>できる一方、この特徴（前進増分）では ttc/合図の限界効果が小さいことも同じモデルで正直に定量化できる。意思決定の手がかりは平均でなく<b>不確実性（V1のエントロピー）</b>にある。<br><b>なぜNFか</b>：生成と厳密尤度が一つのモデルで、効果の有無を分布として検証できる。<br><b>使い道</b>：状況別の期待応答の可視化、合図効果の（否定的）検定、V1と組み合わせた迷いの推定。<br><b>正直な限界</b>：前進増分dfwdへの要約で横方向/停止は落ちる。合図は番号のみ＝意味は未使用。</div></section>
+<p class="sub" style="margin-top:2rem">条件付き Normalizing Flow（zuko NSF）で自動生成。
+NF×生活データ探索シリーズの一部。</p>
+</body></html>
