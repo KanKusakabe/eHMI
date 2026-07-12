@@ -27,6 +27,8 @@ critical driver-pedestrian encounters in a coupled simulator"*。
 | 反応 | 歩行者 avatar の平面運動（横断・前進/後退・左右回避）。追加で全身関節も取得可 |
 | 付随 | 安全感(1–7)・「eHMIを見たか/従ったか」の自己申告（trial単位） |
 
+> 注: 試行数が箇所により 395／400／389 と揺れるのは**母数の違い**による。400＝interim questionnaire に回答のある全試行（None289/Left68/Right43）、395＝10Hz整列後に解析へ用いた試行、ON110/OFF285=395＝eHMI ON/OFF に二値化した内訳。数値そのものは各集計の定義どおり。
+
 `data/data/` に元CSV（`fetch` で 4TU から取得・展開）。`data.zip`(229MB) のみ使用し、
 `unity.zip`(5.6GB) は取得しない。
 
@@ -101,13 +103,13 @@ uv run python -m ehmi.report         # 全結果を README.md に一望注入＋
 | Gaussian基線 | +2.70 ± 0.34 | — |
 | 等速度基線 | +1.74 ± 0.52 | 0.49 |
 | MDN | -1.17 ± 0.63 | — |
-| **Flow** | **-1.25 ± 0.63** | **0.47** |
+| Flow | -1.25 ± 0.63 | 0.47 |
 
 > **NLL（負の対数尤度）**: モデルが実際の動きをどれだけ当てたかの指標。**低いほど良い**（負でOK）。3 nats 差 ≈ 約20倍の当てやすさ。
 
 ![nll](reports/figures/nll.png)
 
-> **見方**: 棒＝各手法の held-out NLL（低いほど良い）。灰＝学習しない基線、青＝学習モデル。Flow/MDN が基線を大きく下回る＝「cue→反応」を確かに学習できている定量証拠。
+> **見方**: 棒＝各手法の held-out NLL（低いほど良い）。灰＝学習しない基線、青＝学習モデル。Flow/MDN とも基線より低い NLL＝当てはまりが良く「cue→反応」を学習できている。Flow(-1.25)とMDN(-1.17)の差 0.08 は誤差範囲(±0.63)内で、両者は同等。
 
 ![calibration](reports/figures/calibration.png)
 
@@ -179,7 +181,7 @@ ON 110 / OFF 285 試行。反事実効果はタイプで異なる（効果の異
 
 **解釈**: 値＝(実際ONの横回避のピーク) −(反事実OFFの横回避のピーク)。**負＝eHMIがあると横回避が小さい**（車の進路が分かり、無駄に大きく避けなくて済む）。type0(遅い横断)で最も大きく、type2(速い)で小さい＝eHMIは慎重な人ほど効く。
 
-> 注: eHMI ON/OFF only (L/R entangled w/ car maneuver); counterfactual is model-dependent (SCM assumption), not point-validatable.
+> 注: eHMI は ON/OFF のみで扱う（Left/Right は車の機動と交絡するため）。反事実はモデル依存（SCM 仮定）であり、個々の点では検証できない。
 
 ![cate](reports/figures/cate_by_cluster.png)
 
@@ -219,31 +221,7 @@ ON 110 / OFF 285 試行。反事実効果はタイプで異なる（効果の異
 
 > **見方**: 上から見た1試行の時間再生。**ピンク=歩行者の実際の軌跡**、**青い扇=Flowが予測する次~1.5秒の分布**（広い=不確実）、**四角+矢印=車**（色=eHMI, 遠いので端に表示、range=距離）。青い扇の中にピンクが入り続けるほど予測が当たっている。
 
-### replay_s01_s1_2019_11_26_14_44_25.gif
-
-![replay](reports/figures/replay_s01_s1_2019_11_26_14_44_25.gif)
-
-### replay_s01_s2_2019_11_26_14_40_14.gif
-
-![replay](reports/figures/replay_s01_s2_2019_11_26_14_40_14.gif)
-
-### replay_s19_s2_2019_12_04_15_56_20.gif
-
-![replay](reports/figures/replay_s19_s2_2019_12_04_15_56_20.gif)
-
-### replay_s19_s2_2019_12_04_15_57_40.gif
-
-![replay](reports/figures/replay_s19_s2_2019_12_04_15_57_40.gif)
-
-### replay_s19_s2_2019_12_04_16_07_53.gif
-
-![replay](reports/figures/replay_s19_s2_2019_12_04_16_07_53.gif)
-
-### replay_s20_s2_2019_12_04_17_21_38.gif
-
-![replay](reports/figures/replay_s20_s2_2019_12_04_17_21_38.gif)
-
-高画質版（mp4。GitHub上ではリンク、ローカルビューアでは下のプレーヤーが再生）:
+6本の再生（mp4。GitHub上ではリンク、ローカルビューアでは下のプレーヤーが再生。ファイル名の下のリンクからも開けます）:
 
 <video controls width="480" src="reports/figures/replay_s01_s1_2019_11_26_14_44_25.mp4"></video>
 [replay_s01_s1_2019_11_26_14_44_25.mp4](reports/figures/replay_s01_s1_2019_11_26_14_44_25.mp4)

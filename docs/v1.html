@@ -34,7 +34,7 @@ th,td{border:1px solid #e5e5e5;padding:.4rem .6rem;text-align:left;font-size:.94
 <div class="crumb"><a href="index.html">&larr; eHMI NF lenses トップ</a></div>
 <h1>V1 迷い（横断の意思決定エントロピー）</h1>
 <p class="sub">p(次の移動 | 幾何, ttc, eHMI, 履歴, user) の予測エントロピー。渡る/待つが割れる瞬間ほど高い。</p>
-<div class="kpis"><div class="kpi"><b>-2.034</b><span>held-out NLL</span></div><div class="kpi"><b>0.5</b><span>最も迷うttc(秒)</span></div><div class="kpi"><b>120187</b><span>ステップ数</span></div></div>
+<div class="kpis"><div class="kpi"><b>-2.034</b><span>held-out NLL（負の対数尤度, nats。低い＝負に大きいほど当てはまり良い）</span></div><div class="kpi"><b>0.5</b><span>最も迷うttc(秒)。0付近＝渡る/待つが割れる意思決定ゾーン</span></div><div class="kpi"><b>120187</b><span>ステップ数（規模）</span></div></div>
 <section><h2>1. このデータは何か</h2>車の合図→歩行者応答。直近5ステップの増分履歴＋車との幾何(距離/方位)＋ttc＋eHMI合図＋個人。</section>
 <section><h2>2. 何を・どう学習したか</h2>逐次 NSF <code>p(次の歩行者移動 | 幾何, ttc, eHMI, 履歴, user)</code> を学習し、各ステップの<b>予測エントロピー</b>を推定。ttc（衝突までの時間）と合図の種類で層別。</section>
 <section><h2>3. 結果</h2>予測エントロピーは<b>意思決定ゾーン（ttc≈0秒付近）で最大</b>＝渡るか待つかが割れるタイミングで『次の動きが読めない』。合図の種類でも迷いの平均が変わる。
